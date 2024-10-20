@@ -1,3 +1,16 @@
+import hashlib
+import os
+import getpass
+from typing import List, Tuple
+from dotenv import load_dotenv
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.schema import Document
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.vectorstores import FAISS
+from langchain_openai import ChatOpenAI
+from langchain.prompts import ChatPromptTemplate
+from rank_bm25 import BM25Okapi
+
 class ContextualRetrieval:
     """
     A class that implements the Contextual Retrieval system.
