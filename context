@@ -277,3 +277,175 @@ document = """
 # Initialize ContextualRetrieval
 cr = ContextualRetrieval()
 
+# Process the document
+original_chunks, contextualized_chunks = cr.process_document(document)
+
+print(original_chunks[10])
+
+print(contextualized_chunks[10])
+
+# Create vectorstores
+original_vectorstore = cr.create_vectorstores(original_chunks)
+contextualized_vectorstore = cr.create_vectorstores(contextualized_chunks)
+
+# Create BM25 indexes
+original_bm25_index = cr.create_bm25_index(original_chunks)
+contextualized_bm25_index = cr.create_bm25_index(contextualized_chunks)
+
+# Generate cache key for the document
+cache_key = cr.generate_cache_key(document)
+
+cache_key
+
+print(f"Processed {len(original_chunks)} chunks")
+print(f"Cache key for the document: {cache_key}")
+
+# Example queries related to financial information
+queries = [
+        "What was Tesla's total revenue in Q3 2023? what was the gross profit and cash position?",
+        "How does the automotive gross margin in Q3 2023 compare to the previous year?",
+        "What is Tesla's current debt-to-equity ratio?",
+        "How much did Tesla invest in R&D during Q3 2023?",
+        "What is Tesla's market share in the global EV market for Q3 2023?"
+    ]
+
+for query in queries:
+        print(f"\nQuery: {query}")
+
+        # Retrieve from original vectorstore
+        original_vector_results = original_vectorstore.similarity_search(query, k=3)
+
+        # Retrieve from contextualized vectorstore
+        contextualized_vector_results = contextualized_vectorstore.similarity_search(query, k=3)
+
+        # Retrieve from original BM25
+        original_tokenized_query = query.split()
+        original_bm25_results = original_bm25_index.get_top_n(original_tokenized_query, original_chunks, n=3)
+
+        # Retrieve from contextualized BM25
+        contextualized_tokenized_query = query.split()
+        contextualized_bm25_results = contextualized_bm25_index.get_top_n(contextualized_tokenized_query, contextualized_chunks, n=3)
+
+        # Generate answers
+        original_vector_answer = cr.generate_answer(query, [doc.page_content for doc in original_vector_results])
+        contextualized_vector_answer = cr.generate_answer(query, [doc.page_content for doc in contextualized_vector_results])
+        original_bm25_answer = cr.generate_answer(query, [doc.page_content for doc in original_bm25_results])
+        contextualized_bm25_answer = cr.generate_answer(query, [doc.page_content for doc in contextualized_bm25_results])
+
+   # Complex queries requiring contextual information
+    queries = [
+        "How do Tesla's financial results in Q3 2023 reflect its overall strategy in both the automotive and energy sectors? Consider revenue growth, profitability, and investments in each sector.",
+
+        "Analyze the relationship between Tesla's R&D spending, capital expenditures, and its financial performance. How might this impact its competitive position in the EV and energy storage markets over the next 3-5 years?",
+
+        "Compare Tesla's financial health and market position in different geographic regions. How do regional variations in revenue, market share, and growth rates inform Tesla's global strategy?",
+
+        "Evaluate Tesla's progress in vertical integration, considering its investments in battery production, software development, and manufacturing capabilities. How is this reflected in its financial statements and future outlook?",
+
+        "Assess the potential impact of Tesla's Full Self-Driving (FSD) technology on its financial projections. Consider revenue streams, liability risks, and required investments in the context of the broader autonomous vehicle market.",
+
+        "How does Tesla's financial performance and strategy in the energy storage and generation segment align with or diverge from its automotive business? What synergies or conflicts exist between these segments?",
+
+        "Analyze Tesla's capital structure and liquidity position in the context of its growth strategy and market conditions. How well-positioned is the company to weather potential economic downturns or increased competition?",
+
+        "Evaluate Tesla's pricing strategy across its product lines and geographic markets. How does this strategy impact its financial metrics, market share, and competitive positioning?",
+
+        "Considering Tesla's current financial position, market trends, and competitive landscape, what are the most significant opportunities and risks for the company in the next 2-3 years? How might these factors affect its financial projections?",
+
+        "Assess the potential financial implications of Tesla's expansion into new markets or product categories (e.g., Cybertruck, robotaxis, AI). How do these initiatives align with the company's core competencies and financial strategy?"
+    ]
+
+for query in queries:
+        print(f"\nQuery: {query}")
+
+        # Retrieve from original vectorstore
+        original_vector_results = original_vectorstore.similarity_search(query, k=3)
+
+        # Retrieve from contextualized vectorstore
+        contextualized_vector_results = contextualized_vectorstore.similarity_search(query, k=3)
+
+        # Retrieve from original BM25
+        original_tokenized_query = query.split()
+        original_bm25_results = original_bm25_index.get_top_n(original_tokenized_query, original_chunks, n=3)
+
+        # Retrieve from contextualized BM25
+        contextualized_tokenized_query = query.split()
+        contextualized_bm25_results = contextualized_bm25_index.get_top_n(contextualized_tokenized_query, contextualized_chunks, n=3)
+
+        # Generate answers
+        original_vector_answer = cr.generate_answer(query, [doc.page_content for doc in original_vector_results])
+        contextualized_vector_answer = cr.generate_answer(query, [doc.page_content for doc in contextualized_vector_results])
+        original_bm25_answer = cr.generate_answer(query, [doc.page_content for doc in original_bm25_results])
+        contextualized_bm25_answer = cr.generate_answer(query, [doc.page_content for doc in contextualized_bm25_results])
+
+
+        print("\nOriginal Vector Search Results:")
+        for i, doc in enumerate(original_vector_results, 1):
+            print(f"{i}. {doc.page_content[:200]}...")
+
+        print("\nOriginal Vector Search Answer:")
+        print(original_vector_answer)
+        print("\n" + "-"*50)
+
+        print("\nContextualized Vector Search Results:")
+        for i, doc in enumerate(contextualized_vector_results, 1):
+            print(f"{i}. {doc.page_content[:200]}...")
+
+        print("\nContextualized Vector Search Answer:")
+        print(contextualized_vector_answer)
+        print("\n" + "-"*50)
+
+        print("\nOriginal BM25 Search Results:")
+        for i, doc in enumerate(original_bm25_results, 1):
+            print(f"{i}. {doc.page_content[:200]}...")
+
+        print("\nOriginal BM25 Search Answer:")
+        print(original_bm25_answer)
+        print("\n" + "-"*50)
+
+        print("\nContextualized BM25 Search Results:")
+        for i, doc in enumerate(contextualized_bm25_results, 1):
+            print(f"{i}. {doc.page_content[:200]}...")
+
+        print("\nContextualized BM25 Search Answer:")
+        print(contextualized_bm25_answer)
+
+        print("\n" + "="*50)
+
+
+
+
+        print("\nOriginal Vector Search Results:")
+        for i, doc in enumerate(original_vector_results, 1):
+            print(f"{i}. {doc.page_content[:200]}...")
+
+        print("\nOriginal Vector Search Answer:")
+        print(original_vector_answer)
+        print("\n" + "-"*50)
+
+        print("\nContextualized Vector Search Results:")
+        for i, doc in enumerate(contextualized_vector_results, 1):
+            print(f"{i}. {doc.page_content[:200]}...")
+
+        print("\nContextualized Vector Search Answer:")
+        print(contextualized_vector_answer)
+        print("\n" + "-"*50)
+
+        print("\nOriginal BM25 Search Results:")
+        for i, doc in enumerate(original_bm25_results, 1):
+            print(f"{i}. {doc.page_content[:200]}...")
+
+        print("\nOriginal BM25 Search Answer:")
+        print(original_bm25_answer)
+        print("\n" + "-"*50)
+
+        print("\nContextualized BM25 Search Results:")
+        for i, doc in enumerate(contextualized_bm25_results, 1):
+            print(f"{i}. {doc.page_content[:200]}...")
+
+        print("\nContextualized BM25 Search Answer:")
+        print(contextualized_bm25_answer)
+
+        print("\n" + "="*50)
+
+
